@@ -445,7 +445,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	kshgid = getgid();
 	kshegid = getegid();
 
-	safe_prompt = ksheuid ? "$ " : "# ";
+	safe_prompt = ksheuid ? " > " : " #> ";
 	vp = global("PS1");
 	/* Set PS1 if unset or we are root and prompt doesn't contain a # */
 	if (!(vp->flag & ISSET) ||

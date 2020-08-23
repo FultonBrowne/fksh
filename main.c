@@ -38,7 +38,7 @@
 __RCSID("$MirOS: src/bin/mksh/main.c,v 1.373 2020/06/22 17:11:01 tg Exp $");
 
 #ifndef MKSHRC_PATH
-#define MKSHRC_PATH	"~/.mkshrc"
+#define MKSHRC_PATH	"~/.fkshrc"
 #endif
 
 #ifndef MKSH_DEFAULT_TMPDIR
@@ -386,9 +386,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 		 * to be a sane 'basic' default PATH
 		 */
 		def_path = MKSH_UNIXROOT "/bin" MKSH_PATHSEPS
-		    MKSH_UNIXROOT "/usr/bin" MKSH_PATHSEPS
-		    MKSH_UNIXROOT "/sbin" MKSH_PATHSEPS
-		    MKSH_UNIXROOT "/usr/sbin";
+		    MKSH_UNIXROOT "/sbin";
 #endif
 
 	/*
@@ -416,7 +414,6 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 
 	/* for security */
 	typeset(TinitIFS, 0, 0, 0, 0);
-
 	/* assign default shell variable values */
 	typeset("PATHSEP=" MKSH_PATHSEPS, 0, 0, 0, 0);
 	substitute(initsubs, 0);
@@ -445,7 +442,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	kshgid = getgid();
 	kshegid = getegid();
 
-	safe_prompt = ksheuid ? " > " : " #> ";
+	safe_prompt = ksheuid ? "\x1B[36m >> \033[0m" : "\x1B[31m # >> \033[0m";
 	vp = global("PS1");
 	/* Set PS1 if unset or we are root and prompt doesn't contain a # */
 	if (!(vp->flag & ISSET) ||

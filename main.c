@@ -442,7 +442,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	kshgid = getgid();
 	kshegid = getegid();
 
-	safe_prompt = ksheuid ? "\x1B[36m >> \033[0m" : "\x1B[31m # >> \033[0m";
+	safe_prompt = ksheuid ? "\x1B[36m » \033[0m" : "\x1B[31m #» \033[0m";
 	vp = global("PS1");
 	/* Set PS1 if unset or we are root and prompt doesn't contain a # */
 	if (!(vp->flag & ISSET) ||

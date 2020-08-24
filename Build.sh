@@ -1550,7 +1550,7 @@ gcc)
 	ac_flags 1 fnolto -fno-lto 'whether we can explicitly disable buggy GCC LTO' -fno-lto
 	# The following tests run with -Werror (gcc only) if possible
 	NOWARN=$DOWARN; phase=u
-	ac_flags 1 wnodeprecateddecls -Wno-deprecated-declarations
+	ac_flags 1 wnodeprecateddecls # -Wno-deprecated-declarations
 	# mksh is not written in CFrustFrust!
 	ac_flags 1 no_eh_frame -fno-asynchronous-unwind-tables
 	ac_flags 1 fnostrictaliasing -fno-strict-aliasing

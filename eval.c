@@ -83,11 +83,11 @@ static char *trimsub(char *, char *, int);
 static void glob(char *, XPtrV *, bool);
 static void globit(XString *, char **, char *, XPtrV *, int);
 static const char *maybe_expand_tilde(const char *, XString *, char **, bool);
-#ifndef MKSH_NOPWNAM
+#ifndef FKSH_NOPWNAM
 static char *homedir(char *);
 #endif
 static void alt_expand(XPtrV *, char *, char *, char *, int);
-static int utflen(const char *) MKSH_A_PURE;
+static int utflen(const char *) FKSH_A_PURE;
 static void utfincptr(const char *, mksh_ari_t *);
 
 /* UTFMODE functions */
@@ -1007,7 +1007,7 @@ expand(
 			} else {
 				while ((c = shf_getc(x.u.shf)) == 0 ||
 				    cinttype(c, C_NL)) {
-#ifdef MKSH_WITH_TEXTMODE
+#ifdef FKSH_WITH_TEXTMODE
 					if (c == ORD('\r')) {
 						c = shf_getc(x.u.shf);
 						switch (c) {
@@ -1950,7 +1950,7 @@ char *
 do_tilde(char *cp)
 {
 	char *dp = null;
-#ifndef MKSH_NOPWNAM
+#ifndef FKSH_NOPWNAM
 	bool do_simplify = true;
 #endif
 
@@ -1960,7 +1960,7 @@ do_tilde(char *cp)
 		dp = str_val(global(TPWD));
 	else if (ksh_isdash(cp))
 		dp = str_val(global(TOLDPWD));
-#ifndef MKSH_NOPWNAM
+#ifndef FKSH_NOPWNAM
 	else {
 		dp = homedir(cp);
 		do_simplify = false;
@@ -1972,7 +1972,7 @@ do_tilde(char *cp)
 		return (NULL);
 
 	/* simplify parameters as if cwd upon entry */
-#ifndef MKSH_NOPWNAM
+#ifndef FKSH_NOPWNAM
 	if (do_simplify)
 #endif
 	  {
@@ -1982,7 +1982,7 @@ do_tilde(char *cp)
 	return (dp);
 }
 
-#ifndef MKSH_NOPWNAM
+#ifndef FKSH_NOPWNAM
 /*
  * map userid to user's home directory.
  * note that 4.3's getpw adds more than 6K to the shell,

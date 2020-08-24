@@ -51,11 +51,11 @@ __RCSID("$MirOS: src/bin/mksh/funcs.c,v 1.377 2020/07/24 20:11:17 tg Exp $");
 #define mksh_kill	kill
 #endif
 
-#ifdef MKSH_UNLIMITED
+#ifdef FKSH_UNLIMITED
 #define c_ulimit	c_true
 #endif
 
-#if !defined(MKSH_UNEMPLOYED) && HAVE_GETSID
+#if !defined(FKSH_UNEMPLOYED) && HAVE_GETSID
 static int c_suspend(const char **);
 #endif
 
@@ -73,13 +73,13 @@ bi_getn(const char *as, int *ai)
 }
 
 static int
-c_true(const char **wp MKSH_A_UNUSED)
+c_true(const char **wp FKSH_A_UNUSED)
 {
 	return (0);
 }
 
 static int
-c_false(const char **wp MKSH_A_UNUSED)
+c_false(const char **wp FKSH_A_UNUSED)
 {
 	return (1);
 }
@@ -125,7 +125,7 @@ const struct builtin mkshbuiltins[] = {
 	{Tsghset, c_set},
 	{"*=#shift", c_shift},
 	{Tgsource, c_dot},
-#if !defined(MKSH_UNEMPLOYED) && HAVE_GETSID
+#if !defined(FKSH_UNEMPLOYED) && HAVE_GETSID
 	{Tsuspend, c_suspend},
 #endif
 	{"test", c_test},
@@ -139,17 +139,17 @@ const struct builtin mkshbuiltins[] = {
 	{"*=unset", c_unset},
 	{"wait", c_wait},
 	{"whence", c_whence},
-#ifndef MKSH_UNEMPLOYED
+#ifndef FKSH_UNEMPLOYED
 	{Tbg, c_fgbg},
 	{Tfg, c_fgbg},
 #endif
-#ifndef MKSH_NO_CMDLINE_EDITING
+#ifndef FKSH_NO_CMDLINE_EDITING
 	{"bind", c_bind},
 #endif
 #if HAVE_MKNOD
 	{"mknod", c_mknod},
 #endif
-#ifdef MKSH_PRINTF_BUILTIN
+#ifdef FKSH_PRINTF_BUILTIN
 	{"~printf", c_printf},
 #endif
 #if HAVE_SELECT
@@ -315,7 +315,7 @@ c_print(const char **wp)
 	if (wp[0][0] == 'e') {
 		/* "echo" builtin */
 		if (Flag(FPOSIX) ||
-#ifndef MKSH_MIDNIGHTBSD01ASH_COMPAT
+#ifndef FKSH_MIDNIGHTBSD01ASH_COMPAT
 		    Flag(FSH) ||
 #endif
 		    as_builtin) {
@@ -335,7 +335,7 @@ c_print(const char **wp)
 			 * recognise -Een if they appear in arguments with
 			 * no illegal options; e.g. echo -nq outputs '-nq'
 			 */
-#ifdef MKSH_MIDNIGHTBSD01ASH_COMPAT
+#ifdef FKSH_MIDNIGHTBSD01ASH_COMPAT
 			/* MidnightBSD /bin/sh needs -e supported but off */
 			if (Flag(FSH))
 				new_exp = false;
@@ -583,7 +583,7 @@ s_get(void)
 }
 
 static void
-s_put(int c MKSH_A_UNUSED)
+s_put(int c FKSH_A_UNUSED)
 {
 	--s_ptr;
 }
@@ -725,7 +725,7 @@ do_whence(const char **wp, int fcflags, bool vflag, bool iscommand)
 			if (vflag)
 				shf_puts(" is a reserved word", shl_stdout);
 			break;
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 		default:
 			bi_errorf(Tunexpected_type, id, Tcommand, tp->type);
 			return (1);
@@ -771,7 +771,7 @@ c_alias(const char **wp)
 		prefix = builtin_opt.info & GI_PLUS ? '+' : '-';
 		switch (optc) {
 		case 'd':
-#ifdef MKSH_NOPWNAM
+#ifdef FKSH_NOPWNAM
 			t = NULL;	/* fix "alias -dt" */
 #else
 			t = &homedirs;
@@ -800,7 +800,7 @@ c_alias(const char **wp)
 			return (1);
 		}
 	}
-#ifdef MKSH_NOPWNAM
+#ifdef FKSH_NOPWNAM
 	if (t == NULL)
 		return (0);
 #endif
@@ -922,7 +922,7 @@ c_unalias(const char **wp)
 			all = true;
 			break;
 		case 'd':
-#ifdef MKSH_NOPWNAM
+#ifdef FKSH_NOPWNAM
 			/* fix "unalias -dt" */
 			t = NULL;
 #else
@@ -935,7 +935,7 @@ c_unalias(const char **wp)
 		case '?':
 			return (1);
 		}
-#ifdef MKSH_NOPWNAM
+#ifdef FKSH_NOPWNAM
 	if (t == NULL)
 		return (0);
 #endif
@@ -1025,7 +1025,7 @@ c_jobs(const char **wp)
 	return (rv);
 }
 
-#ifndef MKSH_UNEMPLOYED
+#ifndef FKSH_UNEMPLOYED
 int
 c_fgbg(const char **wp)
 {
@@ -1099,7 +1099,7 @@ c_kill(const char **wp)
 		i = builtin_opt.optind;
 	}
 	if ((lflag && t) || (!wp[i] && !lflag)) {
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 		shf_puts("usage:\tkill [-s signame | -signum | -signame]"
 		    " { job | pid | pgrp } ...\n"
 		    "\tkill -l [exit_status ...]\n", shl_out);
@@ -1283,12 +1283,12 @@ c_getopts(const char **wp)
 	return (optc < 0 ? 1 : rv);
 }
 
-#ifndef MKSH_NO_CMDLINE_EDITING
+#ifndef FKSH_NO_CMDLINE_EDITING
 int
 c_bind(const char **wp)
 {
 	int optc, rv = 0;
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	bool macro = false;
 #endif
 
@@ -1301,7 +1301,7 @@ c_bind(const char **wp)
 		switch (optc) {
 		case 'l':
 			return (x_bind_list());
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 		case 'm':
 			macro = true;
 			break;
@@ -1596,7 +1596,7 @@ c_read(const char **wp)
 #else
 #define c_read_opts "Aad:N:n:prsu,"
 #endif
-#if defined(__OS2__) && defined(MKSH_WITH_TEXTMODE)
+#if defined(__OS2__) && defined(FKSH_WITH_TEXTMODE)
 	int saved_mode;
 	int saved_errno;
 #endif
@@ -1728,11 +1728,11 @@ c_read(const char **wp)
 	}
 #endif
 
-#if defined(__OS2__) && defined(MKSH_WITH_TEXTMODE)
+#if defined(__OS2__) && defined(FKSH_WITH_TEXTMODE)
 	saved_mode = setmode(fd, O_TEXT);
 #endif
 	if ((bytesread = blocking_read(fd, xp, bytesleft)) == (size_t)-1) {
-#if defined(__OS2__) && defined(MKSH_WITH_TEXTMODE)
+#if defined(__OS2__) && defined(FKSH_WITH_TEXTMODE)
 		saved_errno = errno;
 		setmode(fd, saved_mode);
 		errno = saved_errno;
@@ -1751,7 +1751,7 @@ c_read(const char **wp)
 		rv = 2;
 		goto c_read_out;
 	}
-#if defined(__OS2__) && defined(MKSH_WITH_TEXTMODE)
+#if defined(__OS2__) && defined(FKSH_WITH_TEXTMODE)
 	setmode(fd, saved_mode);
 #endif
 
@@ -2250,7 +2250,7 @@ c_set(const char **wp)
 	 * (subst_exstat is cleared in execute() so that it will be 0
 	 * if there are no command substitutions).
 	 */
-#ifdef MKSH_LEGACY_MODE
+#ifdef FKSH_LEGACY_MODE
 	/* traditional behaviour, unless set -o posix */
 	return (Flag(FPOSIX) ? 0 : subst_exstat);
 #else
@@ -2324,7 +2324,7 @@ p_time(struct shf *shf, bool posix, long tv_sec, int tv_usec, int width,
 }
 
 int
-c_times(const char **wp MKSH_A_UNUSED)
+c_times(const char **wp FKSH_A_UNUSED)
 {
 	struct rusage usage;
 
@@ -2453,7 +2453,7 @@ timex_hook(struct op *t, char **volatile *app)
 
 /* exec with no args - args case is taken care of in comexec() */
 int
-c_exec(const char **wp MKSH_A_UNUSED)
+c_exec(const char **wp FKSH_A_UNUSED)
 {
 	int i;
 
@@ -2871,7 +2871,7 @@ test_eval(Test_env *te, Test_op op, const char *opnd1, const char *opnd2,
 
 	/* -h or -L */
 	case TO_FILSYM:
-#ifdef MKSH__NO_SYMLINK
+#ifdef FKSH__NO_SYMLINK
 		return (0);
 #else
 		return (test_lstat(opnd1, &b1) == 0 && S_ISLNK(b1.st_mode));
@@ -3188,7 +3188,7 @@ ptest_isa(Test_env *te, Test_meta meta)
 }
 
 static const char *
-ptest_getopnd(Test_env *te, Test_op op, bool do_eval MKSH_A_UNUSED)
+ptest_getopnd(Test_env *te, Test_op op, bool do_eval FKSH_A_UNUSED)
 {
 	if (te->pos.wp >= te->wp_end)
 		return (op == TO_FILTT ? "1" : NULL);
@@ -3268,7 +3268,7 @@ c_cat(const char **wp)
 	const char *fn = "<stdin>";
 	char *buf, *cp;
 	bool opipe;
-#define MKSH_CAT_BUFSIZ 4096
+#define FKSH_CAT_BUFSIZ 4096
 
 	/* parse options: POSIX demands we support "-u" as no-op */
 	while ((rv = ksh_getopt(wp, &builtin_opt, Tu)) != -1) {
@@ -3284,8 +3284,8 @@ c_cat(const char **wp)
 	wp += builtin_opt.optind;
 	rv = 0;
 
-	if ((buf = malloc_osfunc(MKSH_CAT_BUFSIZ)) == NULL) {
-		bi_errorf(Toomem, (size_t)MKSH_CAT_BUFSIZ);
+	if ((buf = malloc_osfunc(FKSH_CAT_BUFSIZ)) == NULL) {
+		bi_errorf(Toomem, (size_t)FKSH_CAT_BUFSIZ);
 		return (1);
 	}
 
@@ -3305,7 +3305,7 @@ c_cat(const char **wp)
 		}
 		while (/* CONSTCOND */ 1) {
 			if ((n = blocking_read(fd, (cp = buf),
-			    MKSH_CAT_BUFSIZ)) == -1) {
+			    FKSH_CAT_BUFSIZ)) == -1) {
 				if (errno == EINTR) {
 					if (opipe)
 						restore_pipe();
@@ -3383,7 +3383,7 @@ c_sleep(const char **wp)
 	else if (parse_usec(wp[0], &tv))
 		bi_errorf(Tf_sD_s_qs, Tsynerr, cstrerror(errno), wp[0]);
 	else {
-#ifndef MKSH_NOPROSPECTOFWORK
+#ifndef FKSH_NOPROSPECTOFWORK
 		sigset_t omask, bmask;
 
 		/* block a number of signals from interrupting us, though */
@@ -3412,7 +3412,7 @@ c_sleep(const char **wp)
 			rv = 0;
 		else
 			bi_errorf(Tf_sD_s, Tselect, cstrerror(errno));
-#ifndef MKSH_NOPROSPECTOFWORK
+#ifndef FKSH_NOPROSPECTOFWORK
 		/* this will re-schedule signal delivery */
 		sigprocmask(SIG_SETMASK, &omask, NULL);
 #endif
@@ -3421,7 +3421,7 @@ c_sleep(const char **wp)
 }
 #endif
 
-#if !defined(MKSH_UNEMPLOYED) && HAVE_GETSID
+#if !defined(FKSH_UNEMPLOYED) && HAVE_GETSID
 static int
 c_suspend(const char **wp)
 {

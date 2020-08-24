@@ -36,7 +36,7 @@
 __RCSID("$MirOS: src/bin/mksh/misc.c,v 1.301 2020/07/24 20:50:10 tg Exp $");
 
 #define KSH_CHVT_FLAG
-#ifdef MKSH_SMALL
+#ifdef FKSH_SMALL
 #undef KSH_CHVT_FLAG
 #endif
 #ifdef TIOCSCTTY
@@ -48,12 +48,12 @@ __RCSID("$MirOS: src/bin/mksh/misc.c,v 1.301 2020/07/24 20:50:10 tg Exp $");
 unsigned char chtypes[UCHAR_MAX + 1];
 
 static const unsigned char *pat_scan(const unsigned char *,
-    const unsigned char *, bool) MKSH_A_PURE;
+    const unsigned char *, bool) FKSH_A_PURE;
 static int do_gmatch(const unsigned char *, const unsigned char *,
     const unsigned char *, const unsigned char *,
-    const unsigned char *) MKSH_A_PURE;
+    const unsigned char *) FKSH_A_PURE;
 static const unsigned char *gmatch_cclass(const unsigned char *, unsigned char)
-    MKSH_A_PURE;
+    FKSH_A_PURE;
 #ifdef KSH_CHVT_CODE
 static void chvt(const Getopt *);
 #endif
@@ -162,13 +162,13 @@ printoption(size_t i)
 	if (Flag(i) == baseline_flags[i])
 		return (0);
 	if (!OFN(i)[0]) {
-#if !defined(MKSH_SMALL) || defined(DEBUG)
+#if !defined(FKSH_SMALL) || defined(DEBUG)
 		bi_errorf(Tf_sd, "change in unnamed option", (int)i);
 #endif
 		return (1);
 	}
 	if (Flag(i) != 0 && Flag(i) != 1) {
-#if !defined(MKSH_SMALL) || defined(DEBUG)
+#if !defined(FKSH_SMALL) || defined(DEBUG)
 		bi_errorf(Tf_s_sD_s, Tdo, OFN(i), "not 0 or 1");
 #endif
 		return (1);
@@ -268,9 +268,9 @@ change_flag(enum sh_flag f, int what, bool newset)
 #else /* !HAVE_SETRESUGID */
 		/* setgid, setegid don't EAGAIN on Linux */
 		setgid(kshegid);
-#ifndef MKSH__NO_SETEUGID
+#ifndef FKSH__NO_SETEUGID
 		setegid(kshegid);
-#endif /* !MKSH__NO_SETEUGID */
+#endif /* !FKSH__NO_SETEUGID */
 #endif /* !HAVE_SETRESUGID */
 
 		/* +++ wipe groups vector +++ */
@@ -285,9 +285,9 @@ change_flag(enum sh_flag f, int what, bool newset)
 #else /* !HAVE_SETRESUGID */
 		/* seteuid doesn't EAGAIN on Linux */
 		DO_SETUID(setuid, (ksheuid));
-#ifndef MKSH__NO_SETEUGID
+#ifndef FKSH__NO_SETEUGID
 		seteuid(ksheuid);
-#endif /* !MKSH__NO_SETEUGID */
+#endif /* !FKSH__NO_SETEUGID */
 #endif /* !HAVE_SETRESUGID */
 
 		/* +++ privs changed +++ */
@@ -298,13 +298,13 @@ change_flag(enum sh_flag f, int what, bool newset)
 			UTFMODE = 0;
 		/* Turning on -o posix or -o sh? */
 		Flag(FBRACEEXPAND) = 0;
-#ifndef MKSH_NO_CMDLINE_EDITING
+#ifndef FKSH_NO_CMDLINE_EDITING
 	} else if ((f == FEMACS ||
-#if !MKSH_S_NOVI
+#if !FKSH_S_NOVI
 	    f == FVI ||
 #endif
 	    f == FGMACS) && newval) {
-#if !MKSH_S_NOVI
+#if !FKSH_S_NOVI
 		Flag(FVI) = 0;
 #endif
 		Flag(FEMACS) = Flag(FGMACS) = 0;
@@ -318,7 +318,7 @@ change_flag(enum sh_flag f, int what, bool newset)
 		/* Changing interactive flag? */
 		if ((what == OF_CMDLINE || what == OF_SET) && procpid == kshpid)
 			Flag(FTALKING_I) = newval;
-#ifndef MKSH_UNEMPLOYED
+#ifndef FKSH_UNEMPLOYED
 	} else if (f == FMONITOR) {
 		if (what != OF_CMDLINE && newval != oldval)
 			j_change();
@@ -421,7 +421,7 @@ parse_args(const char **argv,
 				 * an option (ie, can't get here if what is
 				 * OF_CMDLINE).
 				 */
-#if !defined(MKSH_SMALL) || defined(DEBUG)
+#if !defined(FKSH_SMALL) || defined(DEBUG)
 				if (!set && !baseline_flags[(int)FNFLAGS]) {
 					bi_errorf(Tf_s_s, "too early",
 					    Tset_po);
@@ -455,7 +455,7 @@ parse_args(const char **argv,
 			else if ((i != (size_t)-1) && (OFF(i) & what))
 				change_flag((enum sh_flag)i, what, set);
 			else if (!strcmp(go.optarg, To_reset)) {
-#if !defined(MKSH_SMALL) || defined(DEBUG)
+#if !defined(FKSH_SMALL) || defined(DEBUG)
 				if (!baseline_flags[(int)FNFLAGS]) {
 					bi_errorf(Tf_ss, "too early",
 					    To_o_reset);
@@ -1445,7 +1445,7 @@ print_value_quoted(struct shf *shf, const char *s)
 		shf_putc('$', shf);
 		shf_putc('\'', shf);
 		while ((c = *p) != 0) {
-#ifndef MKSH_EBCDIC
+#ifndef FKSH_EBCDIC
 			if (c >= 0xC2) {
 				n = utf_mbtowc(&wc, (const char *)p);
 				if (n != (size_t)-1) {
@@ -1496,7 +1496,7 @@ print_value_quoted(struct shf *shf, const char *s)
 				if (0)
 					/* FALLTHROUGH */
 			default:
-#if defined(MKSH_EBCDIC) || defined(MKSH_FAUX_EBCDIC)
+#if defined(FKSH_EBCDIC) || defined(FKSH_FAUX_EBCDIC)
 				  if (ksh_isctrl(c))
 #else
 				  if (!ctype(c, C_PRINT))
@@ -1534,7 +1534,7 @@ print_columns(struct columnise_opts *opts, unsigned int n,
 		return;
 
 	if (max_colz > 2147483646) {
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 		internal_warningf("print_columns called with %s=%zu >= INT_MAX",
 		    "max_col", max_colz);
 #endif
@@ -1543,7 +1543,7 @@ print_columns(struct columnise_opts *opts, unsigned int n,
 	max_col = (unsigned int)max_colz;
 
 	if (max_oct > 2147483646) {
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 		internal_warningf("print_columns called with %s=%zu >= INT_MAX",
 		    "max_oct", max_oct);
 #endif
@@ -1674,7 +1674,7 @@ reset_nonblock(int fd)
 char *
 ksh_get_wd(void)
 {
-#ifdef MKSH__NO_PATH_MAX
+#ifdef FKSH__NO_PATH_MAX
 	char *rv, *cp;
 
 	if ((cp = get_current_dir_name())) {
@@ -1706,7 +1706,7 @@ do_realpath(const char *upath)
 	size_t pos, len;
 	int llen;
 	struct stat sb;
-#ifdef MKSH__NO_PATH_MAX
+#ifdef FKSH__NO_PATH_MAX
 	size_t ldestlen = 0;
 #define pathlen sb.st_size
 #define pathcnd (ldestlen < (pathlen + 1))
@@ -1720,7 +1720,7 @@ do_realpath(const char *upath)
 	if (mksh_abspath(upath)) {
 		/* upath is an absolute pathname */
 		strdupx(ipath, upath, ATEMP);
-#ifdef MKSH_DOSPATH
+#ifdef FKSH_DOSPATH
 	} else if (mksh_drvltr(upath)) {
 		/* upath is a drive-relative pathname */
 		if (getdrvwd(&ldest, ord(*upath)))
@@ -1802,7 +1802,7 @@ do_realpath(const char *upath)
 
 		/* check if we encountered a symlink? */
 		if (S_ISLNK(sb.st_mode)) {
-#ifndef MKSH__NO_SYMLINK
+#ifndef FKSH__NO_SYMLINK
 			/* reached maximum recursion depth? */
 			if (!symlinks--) {
 				/* yep, prevent infinite loops */
@@ -1812,7 +1812,7 @@ do_realpath(const char *upath)
 
 			/* get symlink(7) target */
 			if (pathcnd) {
-#ifdef MKSH__NO_PATH_MAX
+#ifdef FKSH__NO_PATH_MAX
 				if (notoktoadd(pathlen, 1)) {
 					errno = ENAMETOOLONG;
 					goto notfound;
@@ -1830,7 +1830,7 @@ do_realpath(const char *upath)
 			 * restart if symlink target is an absolute path,
 			 * otherwise continue with currently resolved prefix
 			 */
-#ifdef MKSH_DOSPATH
+#ifdef FKSH_DOSPATH
  assemble_symlink:
 #endif
 			/* append rest of current input path to link target */
@@ -1838,7 +1838,7 @@ do_realpath(const char *upath)
 			afree(ipath, ATEMP);
 			ip = ipath = tp;
 			if (!mksh_abspath(ipath)) {
-#ifdef MKSH_DOSPATH
+#ifdef FKSH_DOSPATH
 				/* symlink target might be drive-relative */
 				if (mksh_drvltr(ipath)) {
 					if (getdrvwd(&ldest, ord(*ipath)))
@@ -1863,7 +1863,7 @@ do_realpath(const char *upath)
 					/* keep them, e.g. for UNC pathnames */
 					Xput(xs, xp, '/');
 				}
-#ifdef MKSH_DOSPATH
+#ifdef FKSH_DOSPATH
 				/* drive letter? */
 				if (mksh_drvltr(ip)) {
 					/* keep it */
@@ -1971,7 +1971,7 @@ make_path(const char *cwd, const char *file,
 		else if (use_cdpath) {
 			char *pend = plist;
 
-			while (*pend && *pend != MKSH_PATHSEPC)
+			while (*pend && *pend != FKSH_PATHSEPC)
 				++pend;
 			plen = pend - plist;
 			*cdpathp = *pend ? pend + 1 : NULL;
@@ -2036,7 +2036,7 @@ simplify_path(char *p)
 	char *dp, *ip, *sp, *tp;
 	size_t len;
 	bool needslash;
-#ifdef MKSH_DOSPATH
+#ifdef FKSH_DOSPATH
 	bool needdot = true;
 
 	/* keep drive letter */
@@ -2052,7 +2052,7 @@ simplify_path(char *p)
 	case 0:
 		return;
 	case '/':
-#ifdef MKSH_DOSPATH
+#ifdef FKSH_DOSPATH
 	case '\\':
 #endif
 		/* exactly two leading slashes? (SUSv4 3.266) */
@@ -2246,7 +2246,7 @@ c_cd(const char **wp)
 		return (2);
 	}
 
-#ifdef MKSH_DOSPATH
+#ifdef FKSH_DOSPATH
 	tryp = NULL;
 	if (mksh_drvltr(dir) && !mksh_cdirsep(dir[2]) &&
 	    !getdrvwd(&tryp, ord(*dir))) {
@@ -2257,7 +2257,7 @@ c_cd(const char **wp)
 	}
 #endif
 
-#ifdef MKSH__NO_PATH_MAX
+#ifdef FKSH__NO_PATH_MAX
 	/* only a first guess; make_path will enlarge xs if necessary */
 	XinitN(xs, 1024, ATEMP);
 #else
@@ -2370,7 +2370,7 @@ chvt(const Getopt *go)
 		}
 		if (!(sb.st_mode & S_IFCHR))
 			errorf(Tf_sD_sD_s, "chvt", "not a char device", dv);
-#ifndef MKSH_DISABLE_REVOKE_WARNING
+#ifndef FKSH_DISABLE_REVOKE_WARNING
 #if HAVE_REVOKE
 		if (revoke(dv))
 #endif
@@ -2446,7 +2446,7 @@ strstr(char *b, const char *l)
 }
 #endif
 
-#if defined(MKSH_SMALL) && !defined(MKSH_SMALL_BUT_FAST)
+#if defined(FKSH_SMALL) && !defined(FKSH_SMALL_BUT_FAST)
 char *
 strndup_i(const char *src, size_t len, Area *ap)
 {

@@ -56,15 +56,15 @@ static struct op *function_body(char *, int, bool);
 static char **wordlist(int);
 static struct op *block(int, struct op *, struct op *);
 static struct op *newtp(int);
-static void syntaxerr(const char *) MKSH_A_NORETURN;
+static void syntaxerr(const char *) FKSH_A_NORETURN;
 static void nesting_push(struct nesting_state *, int);
 static void nesting_pop(struct nesting_state *);
-static int inalias(struct source *) MKSH_A_PURE;
+static int inalias(struct source *) FKSH_A_PURE;
 static Test_op dbtestp_isa(Test_env *, Test_meta);
 static const char *dbtestp_getopnd(Test_env *, Test_op, bool);
 static int dbtestp_eval(Test_env *, Test_op, const char *,
     const char *, bool);
-static void dbtestp_error(Test_env *, int, const char *) MKSH_A_NORETURN;
+static void dbtestp_error(Test_env *, int, const char *) FKSH_A_NORETURN;
 
 static struct op *outtree;		/* yyparse output */
 static struct nesting_state nesting;	/* \n changed to ; */
@@ -1022,8 +1022,8 @@ dbtestp_isa(Test_env *te, Test_meta meta)
 }
 
 static const char *
-dbtestp_getopnd(Test_env *te, Test_op op MKSH_A_UNUSED,
-    bool do_eval MKSH_A_UNUSED)
+dbtestp_getopnd(Test_env *te, Test_op op FKSH_A_UNUSED,
+    bool do_eval FKSH_A_UNUSED)
 {
 	int c = tpeek(CMDASN);
 
@@ -1037,9 +1037,9 @@ dbtestp_getopnd(Test_env *te, Test_op op MKSH_A_UNUSED,
 }
 
 static int
-dbtestp_eval(Test_env *te MKSH_A_UNUSED, Test_op op MKSH_A_UNUSED,
-    const char *opnd1 MKSH_A_UNUSED, const char *opnd2 MKSH_A_UNUSED,
-    bool do_eval MKSH_A_UNUSED)
+dbtestp_eval(Test_env *te FKSH_A_UNUSED, Test_op op FKSH_A_UNUSED,
+    const char *opnd1 FKSH_A_UNUSED, const char *opnd2 FKSH_A_UNUSED,
+    bool do_eval FKSH_A_UNUSED)
 {
 	return (1);
 }

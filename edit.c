@@ -27,7 +27,7 @@
 
 #include "sh.h"
 
-#ifndef MKSH_NO_CMDLINE_EDITING
+#ifndef FKSH_NO_CMDLINE_EDITING
 
 __RCSID("$MirOS: src/bin/mksh/edit.c,v 1.352 2020/07/24 14:54:04 tg Exp $");
 
@@ -37,8 +37,8 @@ __RCSID("$MirOS: src/bin/mksh/edit.c,v 1.352 2020/07/24 14:54:04 tg Exp $");
  * good string is KSH_ESC_STRING "c" except on hardware terminals like the
  * DEC VT420 which do a full power cycle then...
  */
-#ifndef MKSH_CLS_STRING
-#define MKSH_CLS_STRING		KSH_ESC_STRING "[;H" KSH_ESC_STRING "[J"
+#ifndef FKSH_CLS_STRING
+#define FKSH_CLS_STRING		KSH_ESC_STRING "[;H" KSH_ESC_STRING "[J"
 #endif
 
 /* tty driver characters we are interested in */
@@ -95,13 +95,13 @@ static void x_free_words(int, char **);
 static int x_escape(const char *, size_t, int (*)(const char *, size_t));
 static int x_emacs(char *);
 static void x_init_prompt(bool);
-#if !MKSH_S_NOVI
+#if !FKSH_S_NOVI
 static int x_vi(char *);
 #endif
-static void x_intr(int, int) MKSH_A_NORETURN;
+static void x_intr(int, int) FKSH_A_NORETURN;
 
 #define x_flush()	shf_flush(shl_out)
-#if defined(MKSH_SMALL) && !defined(MKSH_SMALL_BUT_FAST)
+#if defined(FKSH_SMALL) && !defined(FKSH_SMALL_BUT_FAST)
 #define x_putc(c)	x_putcf(c)
 #else
 #define x_putc(c)	shf_putc((c), shl_out)
@@ -130,7 +130,7 @@ x_read(char *buf)
 	modified = 1;
 	if (Flag(FEMACS) || Flag(FGMACS))
 		i = x_emacs(buf);
-#if !MKSH_S_NOVI
+#if !FKSH_S_NOVI
 	else if (Flag(FVI))
 		i = x_vi(buf);
 #endif
@@ -800,7 +800,7 @@ glob_path(int flags, const char *pat, XPtrV *wp, const char *lpath)
 	Xinit(xs, xp, patlen + 128, ATEMP);
 	while (sp) {
 		xp = Xstring(xs, xp);
-		if (!(p = cstrchr(sp, MKSH_PATHSEPC)))
+		if (!(p = cstrchr(sp, FKSH_PATHSEPC)))
 			p = strnul(sp);
 		pathlen = p - sp;
 		if (pathlen) {
@@ -953,7 +953,7 @@ static char **x_histmcp;	/* saved x_histp for " */
 static char *xmp;		/* mark pointer */
 static unsigned char x_last_command;
 static unsigned char (*x_tab)[X_TABSZ];	/* key definition */
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 static char *(*x_atab)[X_TABSZ];	/* macro definitions */
 #endif
 static unsigned char x_bound[(X_TABSZ * X_NTABS + 7) / 8];
@@ -961,10 +961,10 @@ static unsigned char x_bound[(X_TABSZ * X_NTABS + 7) / 8];
 static char *killstack[KILLSIZE];
 static int killsp, killtp;
 static int x_curprefix;
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 static char *macroptr;		/* bind key macro active? */
 #endif
-#if !MKSH_S_NOVI
+#if !FKSH_S_NOVI
 static int winwidth;		/* width of window */
 static char *wbuf[2];		/* window buffers */
 static int wbuf_len;		/* length of window buffers (x_cols - 3) */
@@ -982,7 +982,7 @@ static void x_delete(size_t, bool);
 static size_t x_bword(void);
 static size_t x_fword(bool);
 static void x_goto(char *);
-static char *x_bs0(char *, char *) MKSH_A_PURE;
+static char *x_bs0(char *, char *) FKSH_A_PURE;
 static void x_bs3(char **);
 static int x_size2(char *, char **);
 static void x_zots(char *);
@@ -990,7 +990,7 @@ static void x_zotc3(char **);
 static void x_vi_zotc(int);
 static void x_load_hist(char **);
 static int x_search(char *, int, int);
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 static int x_search_dir(int);
 #endif
 static int x_match(char *, char *);
@@ -1002,13 +1002,13 @@ static int x_e_getc(void);
 static void x_e_putc2(int);
 static void x_e_putc3(const char **);
 static void x_e_puts(const char *);
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 static int x_fold_case(int);
 #endif
 static char *x_lastcp(void);
 static void x_lastpos(void);
 static void do_complete(int, Comp_type);
-static size_t x_nb2nc(size_t) MKSH_A_PURE;
+static size_t x_nb2nc(size_t) FKSH_A_PURE;
 
 static int unget_char = -1;
 
@@ -1092,7 +1092,7 @@ static struct x_defbindings const x_defbindings[] = {
 	{ XFUNC_set_arg,		1,	'7'	},
 	{ XFUNC_set_arg,		1,	'8'	},
 	{ XFUNC_set_arg,		1,	'9'	},
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	{ XFUNC_fold_upper,		1,	'U'	},
 	{ XFUNC_fold_upper,		1,	'u'	},
 	{ XFUNC_fold_lower,		1,	'L'	},
@@ -1111,7 +1111,7 @@ static struct x_defbindings const x_defbindings[] = {
 	{ XFUNC_next_com,		2,	'B'	},
 	{ XFUNC_mv_forw,		2,	'C'	},
 	{ XFUNC_mv_back,		2,	'D'	},
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	{ XFUNC_vt_hack,		2,	'1'	},
 	{ XFUNC_mv_beg | 0x80,		2,	'7'	},
 	{ XFUNC_mv_beg,			2,	'H'	},
@@ -1124,23 +1124,23 @@ static struct x_defbindings const x_defbindings[] = {
 	{ XFUNC_search_hist_dn | 0x80,	2,	'6'	},
 #endif
 	/* PC scancodes */
-#if !defined(MKSH_SMALL) || defined(__OS2__)
+#if !defined(FKSH_SMALL) || defined(__OS2__)
 	{ XFUNC_meta3,			0,	0	},
 	{ XFUNC_mv_beg,			3,	71	},
 	{ XFUNC_prev_com,		3,	72	},
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	{ XFUNC_search_hist_up,		3,	73	},
 #endif
 	{ XFUNC_mv_back,		3,	75	},
 	{ XFUNC_mv_forw,		3,	77	},
 	{ XFUNC_mv_end,			3,	79	},
 	{ XFUNC_next_com,		3,	80	},
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	{ XFUNC_search_hist_dn,		3,	81	},
 #endif
 	{ XFUNC_del_char,		3,	83	},
 #endif
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	/* more non-standard ones */
 	{ XFUNC_eval_region,		1,  CTRL_E	},
 	{ XFUNC_quote_region,		1,	'Q'	},
@@ -1169,7 +1169,7 @@ x_modified(void)
 	}
 }
 
-#ifdef MKSH_SMALL
+#ifdef FKSH_SMALL
 #define XFUNC_VALUE(f) (f)
 #else
 #define XFUNC_VALUE(f) (f & 0x7F)
@@ -1267,7 +1267,7 @@ x_emacs(char *buf)
 
 		f = x_curprefix == -1 ? XFUNC_insert :
 		    x_tab[x_curprefix][c];
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 		if (f & 0x80) {
 			f &= 0x7F;
 			if ((i = x_e_getc()) != '~')
@@ -1360,7 +1360,7 @@ x_insert(int c)
 	return (KSTD);
 }
 
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 static int
 x_ins_string(int c)
 {
@@ -1412,7 +1412,7 @@ x_ins(const char *s)
 }
 
 static int
-x_del_back(int c MKSH_A_UNUSED)
+x_del_back(int c FKSH_A_UNUSED)
 {
 	ssize_t i = 0;
 
@@ -1428,7 +1428,7 @@ x_del_back(int c MKSH_A_UNUSED)
 }
 
 static int
-x_del_char(int c MKSH_A_UNUSED)
+x_del_char(int c FKSH_A_UNUSED)
 {
 	char *cp, *cp2;
 	size_t i = 0;
@@ -1519,28 +1519,28 @@ x_delete(size_t nc, bool push)
 }
 
 static int
-x_del_bword(int c MKSH_A_UNUSED)
+x_del_bword(int c FKSH_A_UNUSED)
 {
 	x_delete(x_bword(), true);
 	return (KSTD);
 }
 
 static int
-x_mv_bword(int c MKSH_A_UNUSED)
+x_mv_bword(int c FKSH_A_UNUSED)
 {
 	x_bword();
 	return (KSTD);
 }
 
 static int
-x_mv_fword(int c MKSH_A_UNUSED)
+x_mv_fword(int c FKSH_A_UNUSED)
 {
 	x_fword(true);
 	return (KSTD);
 }
 
 static int
-x_del_fword(int c MKSH_A_UNUSED)
+x_del_fword(int c FKSH_A_UNUSED)
 {
 	x_delete(x_fword(false), true);
 	return (KSTD);
@@ -1678,7 +1678,7 @@ x_zotc3(char **cp)
 }
 
 static int
-x_mv_back(int c MKSH_A_UNUSED)
+x_mv_back(int c FKSH_A_UNUSED)
 {
 	if (xcp == xbuf) {
 		x_e_putc2(KSH_BEL);
@@ -1693,7 +1693,7 @@ x_mv_back(int c MKSH_A_UNUSED)
 }
 
 static int
-x_mv_forw(int c MKSH_A_UNUSED)
+x_mv_forw(int c FKSH_A_UNUSED)
 {
 	char *cp = xcp, *cp2;
 
@@ -1712,7 +1712,7 @@ x_mv_forw(int c MKSH_A_UNUSED)
 }
 
 static int
-x_search_char_forw(int c MKSH_A_UNUSED)
+x_search_char_forw(int c FKSH_A_UNUSED)
 {
 	char *cp = xcp;
 	char tmp[4];
@@ -1734,7 +1734,7 @@ x_search_char_forw(int c MKSH_A_UNUSED)
 }
 
 static int
-x_search_char_back(int c MKSH_A_UNUSED)
+x_search_char_back(int c FKSH_A_UNUSED)
 {
 	char *cp = xcp, *p, tmp[4];
 	bool b;
@@ -1769,7 +1769,7 @@ x_search_char_back(int c MKSH_A_UNUSED)
 }
 
 static int
-x_newline(int c MKSH_A_UNUSED)
+x_newline(int c FKSH_A_UNUSED)
 {
 	x_e_putc2('\r');
 	x_e_putc2('\n');
@@ -1779,7 +1779,7 @@ x_newline(int c MKSH_A_UNUSED)
 }
 
 static int
-x_end_of_text(int c MKSH_A_UNUSED)
+x_end_of_text(int c FKSH_A_UNUSED)
 {
 	unsigned char tmp[1], *cp = tmp;
 
@@ -1793,28 +1793,28 @@ x_end_of_text(int c MKSH_A_UNUSED)
 }
 
 static int
-x_beg_hist(int c MKSH_A_UNUSED)
+x_beg_hist(int c FKSH_A_UNUSED)
 {
 	x_load_hist(history);
 	return (KSTD);
 }
 
 static int
-x_end_hist(int c MKSH_A_UNUSED)
+x_end_hist(int c FKSH_A_UNUSED)
 {
 	x_load_hist(histptr);
 	return (KSTD);
 }
 
 static int
-x_prev_com(int c MKSH_A_UNUSED)
+x_prev_com(int c FKSH_A_UNUSED)
 {
 	x_load_hist(x_histp - x_arg);
 	return (KSTD);
 }
 
 static int
-x_next_com(int c MKSH_A_UNUSED)
+x_next_com(int c FKSH_A_UNUSED)
 {
 	x_load_hist(x_histp + x_arg);
 	return (KSTD);
@@ -1826,7 +1826,7 @@ x_next_com(int c MKSH_A_UNUSED)
  * want so we'll simply go to the oldest one.
  */
 static int
-x_goto_hist(int c MKSH_A_UNUSED)
+x_goto_hist(int c FKSH_A_UNUSED)
 {
 	if (x_arg_defaulted)
 		x_load_hist(history);
@@ -1860,7 +1860,7 @@ x_load_hist(char **hp)
 }
 
 static int
-x_nl_next_com(int c MKSH_A_UNUSED)
+x_nl_next_com(int c FKSH_A_UNUSED)
 {
 	if (!modified)
 		x_histmcp = x_histp;
@@ -1910,7 +1910,7 @@ x_search_hist(int c)
 			}
 			break;
 		}
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 		if (f & 0x80) {
 			f &= 0x7F;
 			if ((c = x_e_getc()) != '~')
@@ -1988,17 +1988,17 @@ x_search(char *pat, int sameline, int offset)
 	return (-1);
 }
 
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 /* anchored search up from current line */
 static int
-x_search_hist_up(int c MKSH_A_UNUSED)
+x_search_hist_up(int c FKSH_A_UNUSED)
 {
 	return (x_search_dir(-1));
 }
 
 /* anchored search down from current line */
 static int
-x_search_hist_dn(int c MKSH_A_UNUSED)
+x_search_hist_dn(int c FKSH_A_UNUSED)
 {
 	return (x_search_dir(1));
 }
@@ -2035,7 +2035,7 @@ x_match(char *str, char *pat)
 }
 
 static int
-x_del_line(int c MKSH_A_UNUSED)
+x_del_line(int c FKSH_A_UNUSED)
 {
 	*xep = 0;
 	x_push(xep - (xcp = xbuf));
@@ -2049,30 +2049,30 @@ x_del_line(int c MKSH_A_UNUSED)
 }
 
 static int
-x_mv_end(int c MKSH_A_UNUSED)
+x_mv_end(int c FKSH_A_UNUSED)
 {
 	x_goto(xep);
 	return (KSTD);
 }
 
 static int
-x_mv_beg(int c MKSH_A_UNUSED)
+x_mv_beg(int c FKSH_A_UNUSED)
 {
 	x_goto(xbuf);
 	return (KSTD);
 }
 
 static int
-x_draw_line(int c MKSH_A_UNUSED)
+x_draw_line(int c FKSH_A_UNUSED)
 {
 	x_redraw('\n');
 	return (KSTD);
 }
 
 static int
-x_cls(int c MKSH_A_UNUSED)
+x_cls(int c FKSH_A_UNUSED)
 {
-	shf_puts(MKSH_CLS_STRING, shl_out);
+	shf_puts(FKSH_CLS_STRING, shl_out);
 	x_redraw(0);
 	return (KSTD);
 }
@@ -2144,7 +2144,7 @@ x_redraw(int cr)
 }
 
 static int
-x_transpose(int c MKSH_A_UNUSED)
+x_transpose(int c FKSH_A_UNUSED)
 {
 	unsigned int tmpa, tmpb;
 
@@ -2212,35 +2212,35 @@ x_transpose(int c MKSH_A_UNUSED)
 }
 
 static int
-x_literal(int c MKSH_A_UNUSED)
+x_literal(int c FKSH_A_UNUSED)
 {
 	x_curprefix = -1;
 	return (KSTD);
 }
 
 static int
-x_meta1(int c MKSH_A_UNUSED)
+x_meta1(int c FKSH_A_UNUSED)
 {
 	x_curprefix = 1;
 	return (KSTD);
 }
 
 static int
-x_meta2(int c MKSH_A_UNUSED)
+x_meta2(int c FKSH_A_UNUSED)
 {
 	x_curprefix = 2;
 	return (KSTD);
 }
 
 static int
-x_meta3(int c MKSH_A_UNUSED)
+x_meta3(int c FKSH_A_UNUSED)
 {
 	x_curprefix = 3;
 	return (KSTD);
 }
 
 static int
-x_kill(int c MKSH_A_UNUSED)
+x_kill(int c FKSH_A_UNUSED)
 {
 	size_t col = xcp - xbuf;
 	size_t lastcol = xep - xbuf;
@@ -2266,7 +2266,7 @@ x_push(size_t nchars)
 }
 
 static int
-x_yank(int c MKSH_A_UNUSED)
+x_yank(int c FKSH_A_UNUSED)
 {
 	if (killsp == 0)
 		killtp = KILLSIZE;
@@ -2284,7 +2284,7 @@ x_yank(int c MKSH_A_UNUSED)
 }
 
 static int
-x_meta_yank(int c MKSH_A_UNUSED)
+x_meta_yank(int c FKSH_A_UNUSED)
 {
 	size_t len;
 
@@ -2328,19 +2328,19 @@ x_intr(int signo, int c)
 }
 
 static int
-x_abort(int c MKSH_A_UNUSED)
+x_abort(int c FKSH_A_UNUSED)
 {
 	return (KINTR);
 }
 
 static int
-x_error(int c MKSH_A_UNUSED)
+x_error(int c FKSH_A_UNUSED)
 {
 	x_e_putc2(KSH_BEL);
 	return (KSTD);
 }
 
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 /* special VT100 style key sequence hack */
 static int
 x_vt_hack(int c)
@@ -2428,7 +2428,7 @@ x_bind_showone(int prefix, int key)
 
 	x_bind_show_xp = Xstring(x_bind_show_xs, x_bind_show_xp);
 	shf_puts("bind ", shl_stdout);
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	if (f == XFUNC_ins_string)
 		shf_puts("-m ", shl_stdout);
 #endif
@@ -2444,7 +2444,7 @@ x_bind_showone(int prefix, int key)
 		break;
 	}
 	x_bind_show_ch(key);
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	if (x_tab[prefix][key] & 0x80)
 		*x_bind_show_xp++ = '~';
 #endif
@@ -2452,7 +2452,7 @@ x_bind_showone(int prefix, int key)
 	x_bind_show_xp = Xstring(x_bind_show_xs, x_bind_show_xp);
 	print_value_quoted(shl_stdout, x_bind_show_xp);
 	shf_putc('=', shl_stdout);
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	if (f == XFUNC_ins_string) {
 		const unsigned char *cp = (const void *)x_atab[prefix][key];
 		unsigned char c;
@@ -2530,7 +2530,7 @@ x_bind(const char *s SMALLP(bool macro))
 	const char *ccp = s;
 	int prefix, key;
 	unsigned int c;
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	bool hastilde = false;
 	char *ms = NULL;
 #endif
@@ -2561,7 +2561,7 @@ x_bind(const char *s SMALLP(bool macro))
 			key = c & 0xFF;
 			continue;
 		}
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 		if (c == ORD('~')) {
 			hastilde = true;
 			continue;
@@ -2571,7 +2571,7 @@ x_bind(const char *s SMALLP(bool macro))
 		return (-1);
 	}
 
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	if (macro) {
 		char *cp;
 
@@ -2594,7 +2594,7 @@ x_bind(const char *s SMALLP(bool macro))
 		}
 	}
 
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	if (XFUNC_VALUE(x_tab[prefix][key]) == XFUNC_ins_string)
 		afree(x_atab[prefix][key], AEDIT);
 	x_atab[prefix][key] = ms;
@@ -2631,14 +2631,14 @@ bind_if_not_bound(int p, int k, int func)
 }
 
 static int
-x_set_mark(int c MKSH_A_UNUSED)
+x_set_mark(int c FKSH_A_UNUSED)
 {
 	xmp = xcp;
 	return (KSTD);
 }
 
 static int
-x_kill_region(int c MKSH_A_UNUSED)
+x_kill_region(int c FKSH_A_UNUSED)
 {
 	size_t rsize;
 	char *xr;
@@ -2661,7 +2661,7 @@ x_kill_region(int c MKSH_A_UNUSED)
 }
 
 static int
-x_xchg_point_mark(int c MKSH_A_UNUSED)
+x_xchg_point_mark(int c FKSH_A_UNUSED)
 {
 	char *tmp;
 
@@ -2676,7 +2676,7 @@ x_xchg_point_mark(int c MKSH_A_UNUSED)
 }
 
 static int
-x_noop(int c MKSH_A_UNUSED)
+x_noop(int c FKSH_A_UNUSED)
 {
 	return (KSTD);
 }
@@ -2685,56 +2685,56 @@ x_noop(int c MKSH_A_UNUSED)
  *	File/command name completion routines
  */
 static int
-x_comp_comm(int c MKSH_A_UNUSED)
+x_comp_comm(int c FKSH_A_UNUSED)
 {
 	do_complete(XCF_COMMAND, CT_COMPLETE);
 	return (KSTD);
 }
 
 static int
-x_list_comm(int c MKSH_A_UNUSED)
+x_list_comm(int c FKSH_A_UNUSED)
 {
 	do_complete(XCF_COMMAND, CT_LIST);
 	return (KSTD);
 }
 
 static int
-x_complete(int c MKSH_A_UNUSED)
+x_complete(int c FKSH_A_UNUSED)
 {
 	do_complete(XCF_COMMAND_FILE, CT_COMPLETE);
 	return (KSTD);
 }
 
 static int
-x_enumerate(int c MKSH_A_UNUSED)
+x_enumerate(int c FKSH_A_UNUSED)
 {
 	do_complete(XCF_COMMAND_FILE, CT_LIST);
 	return (KSTD);
 }
 
 static int
-x_comp_file(int c MKSH_A_UNUSED)
+x_comp_file(int c FKSH_A_UNUSED)
 {
 	do_complete(XCF_FILE, CT_COMPLETE);
 	return (KSTD);
 }
 
 static int
-x_list_file(int c MKSH_A_UNUSED)
+x_list_file(int c FKSH_A_UNUSED)
 {
 	do_complete(XCF_FILE, CT_LIST);
 	return (KSTD);
 }
 
 static int
-x_comp_list(int c MKSH_A_UNUSED)
+x_comp_list(int c FKSH_A_UNUSED)
 {
 	do_complete(XCF_COMMAND_FILE, CT_COMPLIST);
 	return (KSTD);
 }
 
 static int
-x_expand(int c MKSH_A_UNUSED)
+x_expand(int c FKSH_A_UNUSED)
 {
 	char **words;
 	int start, end, nwords, i;
@@ -2919,7 +2919,7 @@ x_e_getc(void)
 		return (c);
 	}
 
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	if (macroptr) {
 		if ((c = (unsigned char)*macroptr++))
 			return (c);
@@ -2938,7 +2938,7 @@ x_e_putc2(int c)
 	if (ctype(c, C_CR | C_LF))
 		x_col = 0;
 	if (x_col < xx_cols) {
-#ifndef MKSH_EBCDIC
+#ifndef FKSH_EBCDIC
 		if (UTFMODE && (c > 0x7F)) {
 			char utf_tmp[3];
 			size_t x;
@@ -2987,7 +2987,7 @@ x_e_putc3(const char **cp)
 			width = utf_widthadj(*cp, (const char **)&cp2);
 			if (cp2 == *cp + 1) {
 				(*cp)++;
-#ifdef MKSH_EBCDIC
+#ifdef FKSH_EBCDIC
 				x_putc(asc2rtt(0xEF));
 				x_putc(asc2rtt(0xBF));
 				x_putc(asc2rtt(0xBD));
@@ -3069,7 +3069,7 @@ x_set_arg(int c)
 
 /* Comment or uncomment the current line. */
 static int
-x_comment(int c MKSH_A_UNUSED)
+x_comment(int c FKSH_A_UNUSED)
 {
 	ssize_t len = xep - xbuf;
 	int ret = x_do_comment(xbuf, xend - xbuf, &len);
@@ -3089,7 +3089,7 @@ x_comment(int c MKSH_A_UNUSED)
 }
 
 static int
-x_version(int c MKSH_A_UNUSED)
+x_version(int c FKSH_A_UNUSED)
 {
 	char *o_xbuf = xbuf, *o_xend = xend;
 	char *o_xbp = xbp, *o_xep = xep, *o_xcp = xcp;
@@ -3120,9 +3120,9 @@ x_version(int c MKSH_A_UNUSED)
 	return (KSTD);
 }
 
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 static int
-x_edit_line(int c MKSH_A_UNUSED)
+x_edit_line(int c FKSH_A_UNUSED)
 {
 	if (x_arg_defaulted) {
 		if (xep == xbuf) {
@@ -3164,7 +3164,7 @@ x_edit_line(int c MKSH_A_UNUSED)
  *	KSTD
  */
 static int
-x_prev_histword(int c MKSH_A_UNUSED)
+x_prev_histword(int c FKSH_A_UNUSED)
 {
 	char *rcp, *cp;
 	char **xhp;
@@ -3230,24 +3230,24 @@ x_prev_histword(int c MKSH_A_UNUSED)
 	return (KSTD);
 }
 
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 /* Uppercase N(1) words */
 static int
-x_fold_upper(int c MKSH_A_UNUSED)
+x_fold_upper(int c FKSH_A_UNUSED)
 {
 	return (x_fold_case('U'));
 }
 
 /* Lowercase N(1) words */
 static int
-x_fold_lower(int c MKSH_A_UNUSED)
+x_fold_lower(int c FKSH_A_UNUSED)
 {
 	return (x_fold_case('L'));
 }
 
 /* Titlecase N(1) words */
 static int
-x_fold_capitalise(int c MKSH_A_UNUSED)
+x_fold_capitalise(int c FKSH_A_UNUSED)
 {
 	return (x_fold_case('C'));
 }
@@ -3401,7 +3401,7 @@ x_mode(bool onoff)
 		mksh_tcset(tty_fd, &tty_state);
 }
 
-#if !MKSH_S_NOVI
+#if !FKSH_S_NOVI
 /* +++ vi editing mode +++ */
 
 struct edstate {
@@ -3425,7 +3425,7 @@ static void save_cbuf(void);
 static void restore_cbuf(void);
 static int putbuf(const char *, ssize_t, bool);
 static void del_range(int, int);
-static int findch(int, int, bool, bool) MKSH_A_PURE;
+static int findch(int, int, bool, bool) FKSH_A_PURE;
 static int forwword(int);
 static int backword(int);
 static int endword(int);
@@ -5500,7 +5500,7 @@ complete_word(int cmd, int count)
 }
 
 static int
-print_expansions(struct edstate *est, int cmd MKSH_A_UNUSED)
+print_expansions(struct edstate *est, int cmd FKSH_A_UNUSED)
 {
 	int start, end, nwords, i;
 	char **words;
@@ -5517,7 +5517,7 @@ print_expansions(struct edstate *est, int cmd MKSH_A_UNUSED)
 	redraw_line(false);
 	return (0);
 }
-#endif /* !MKSH_S_NOVI */
+#endif /* !FKSH_S_NOVI */
 
 /* Similar to x_zotc(emacs.c), but no tab weirdness */
 static void
@@ -5530,7 +5530,7 @@ x_vi_zotc(int c)
 	x_putc(c);
 }
 
-#if !MKSH_S_NOVI
+#if !FKSH_S_NOVI
 static void
 vi_error(void)
 {
@@ -5548,7 +5548,7 @@ vi_macro_reset(void)
 		memset((char *)&macro, 0, sizeof(macro));
 	}
 }
-#endif /* !MKSH_S_NOVI */
+#endif /* !FKSH_S_NOVI */
 
 /* called from main.c */
 void
@@ -5581,7 +5581,7 @@ x_init(void)
 		x_tab[x_defbindings[i].xdb_tab][x_defbindings[i].xdb_char]
 		    = x_defbindings[i].xdb_func;
 
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	x_atab = alloc2(X_NTABS, sizeof(*x_atab), AEDIT);
 	for (i = 1; i < X_NTABS; i++)
 		for (j = 0; j < X_TABSZ; j++)
@@ -5618,7 +5618,7 @@ x_initterm(const char *termtype)
 	}
 }
 
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 static char *
 x_eval_region_helper(const char *cmd, size_t len)
 {
@@ -5695,7 +5695,7 @@ x_operate_region(char *(*helper)(const char *, size_t))
 }
 
 static int
-x_eval_region(int c MKSH_A_UNUSED)
+x_eval_region(int c FKSH_A_UNUSED)
 {
 	return (x_operate_region(x_eval_region_helper));
 }
@@ -5718,9 +5718,9 @@ x_quote_region_helper(const char *cmd, size_t len)
 }
 
 static int
-x_quote_region(int c MKSH_A_UNUSED)
+x_quote_region(int c FKSH_A_UNUSED)
 {
 	return (x_operate_region(x_quote_region_helper));
 }
-#endif /* !MKSH_SMALL */
-#endif /* !MKSH_NO_CMDLINE_EDITING */
+#endif /* !FKSH_SMALL */
+#endif /* !FKSH_NO_CMDLINE_EDITING */

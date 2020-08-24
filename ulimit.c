@@ -260,7 +260,7 @@ c_ulimit(const char **wp)
 #endif
 
 static int
-set_ulimit(const struct limits *l, const char *v, int how MKSH_A_UNUSED)
+set_ulimit(const struct limits *l, const char *v, int how FKSH_A_UNUSED)
 {
 	RL_T val = (RL_T)0;
 #if HAVE_RLIMIT
@@ -293,7 +293,7 @@ set_ulimit(const struct limits *l, const char *v, int how MKSH_A_UNUSED)
 
 #if HAVE_RLIMIT
 	if (getrlimit(l->resource, &limit) < 0) {
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 		bi_errorf("limit %s could not be read, contact the mksh developers: %s",
 		    l->name, cstrerror(errno));
 #endif
@@ -325,7 +325,7 @@ set_ulimit(const struct limits *l, const char *v, int how MKSH_A_UNUSED)
 }
 
 static void
-print_ulimit(const struct limits *l, int how MKSH_A_UNUSED)
+print_ulimit(const struct limits *l, int how FKSH_A_UNUSED)
 {
 	RL_T val = (RL_T)0;
 #if HAVE_RLIMIT

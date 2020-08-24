@@ -26,13 +26,13 @@
 
 __RCSID("$MirOS: src/bin/mksh/exec.c,v 1.223 2020/04/07 23:14:41 tg Exp $");
 
-#ifndef MKSH_DEFAULT_EXECSHELL
-#define MKSH_DEFAULT_EXECSHELL	MKSH_UNIXROOT "/bin/sh"
+#ifndef FKSH_DEFAULT_EXECSHELL
+#define FKSH_DEFAULT_EXECSHELL	FKSH_UNIXROOT "/bin/sh"
 #endif
 
 static int comexec(struct op *, struct tbl * volatile, const char **,
     int volatile, volatile int *);
-static void scriptexec(struct op *, const char **) MKSH_A_NORETURN;
+static void scriptexec(struct op *, const char **) FKSH_A_NORETURN;
 static int call_builtin(struct tbl *, const char **, const char *, bool);
 static int iosetup(struct ioword *, struct tbl *);
 static const char *do_selectargs(const char **, bool);
@@ -208,7 +208,7 @@ execute(struct op * volatile t,
 		break;
 
 	case TCOPROC: {
-#ifndef MKSH_NOPROSPECTOFWORK
+#ifndef FKSH_NOPROSPECTOFWORK
 		sigset_t omask;
 
 		/*
@@ -255,7 +255,7 @@ execute(struct op * volatile t,
 			/* create new coprocess id */
 			++coproc.id;
 		}
-#ifndef MKSH_NOPROSPECTOFWORK
+#ifndef FKSH_NOPROSPECTOFWORK
 		sigprocmask(SIG_SETMASK, &omask, NULL);
 		/* no more need for error handler */
 		e->type = E_EXEC;
@@ -769,7 +769,7 @@ comexec(struct op *t, struct tbl * volatile tp, const char **ap,
 
 		kshname = old_kshname;
 		change_xtrace(old_flags[(int)FXTRACE], false);
-#ifndef MKSH_LEGACY_MODE
+#ifndef FKSH_LEGACY_MODE
 		if (tp->flag & FKSH) {
 			/* Korn style functions restore Flags on return */
 			old_flags[(int)FXTRACE] = Flag(FXTRACE);
@@ -845,7 +845,7 @@ comexec(struct op *t, struct tbl * volatile tp, const char **ap,
 				texec.args[0] = exec_argv0;
 			j_exit();
 			if (!(flags & XBGND)
-#ifndef MKSH_UNEMPLOYED
+#ifndef FKSH_UNEMPLOYED
 			    || Flag(FMONITOR)
 #endif
 			    ) {
@@ -869,7 +869,7 @@ static void
 scriptexec(struct op *tp, const char **ap)
 {
 	const char *sh;
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	int fd;
 	unsigned char buf[68];
 #endif
@@ -879,19 +879,19 @@ scriptexec(struct op *tp, const char **ap)
 	if (sh && *sh)
 		sh = search_path(sh, path, X_OK, NULL);
 	if (!sh || !*sh)
-		sh = MKSH_DEFAULT_EXECSHELL;
+		sh = FKSH_DEFAULT_EXECSHELL;
 
 	*tp->args-- = tp->str;
 
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	if ((fd = binopen2(tp->str, O_RDONLY | O_MAYEXEC)) >= 0) {
 		unsigned char *cp;
-#ifndef MKSH_EBCDIC
+#ifndef FKSH_EBCDIC
 		unsigned short m;
 #endif
 		ssize_t n;
 
-#if defined(__OS2__) && defined(MKSH_WITH_TEXTMODE)
+#if defined(__OS2__) && defined(FKSH_WITH_TEXTMODE)
 		setmode(fd, O_TEXT);
 #endif
 		/* read first couple of octets from file */
@@ -966,7 +966,7 @@ scriptexec(struct op *tp, const char **ap)
 #endif
 		goto nomagic;
  noshebang:
-#ifndef MKSH_EBCDIC
+#ifndef FKSH_EBCDIC
 		m = buf[0] << 8 | buf[1];
 		if (m == 0x7F45 && buf[2] == 'L' && buf[3] == 'F')
 			errorf("%s: not executable: %d-bit ELF file", tp->str,
@@ -1345,7 +1345,7 @@ search_path(const char *name, const char *lpath,
 	sp = lpath;
 	while (sp != NULL) {
 		xp = Xstring(xs, xp);
-		if (!(p = cstrchr(sp, MKSH_PATHSEPC)))
+		if (!(p = cstrchr(sp, FKSH_PATHSEPC)))
 			p = strnul(sp);
 		if (p != sp) {
 			XcheckN(xs, xp, p - sp);

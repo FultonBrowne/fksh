@@ -37,12 +37,12 @@
 
 __RCSID("$MirOS: src/bin/mksh/main.c,v 1.373 2020/06/22 17:11:01 tg Exp $");
 
-#ifndef MKSHRC_PATH
-#define MKSHRC_PATH	"~/.fkshrc"
+#ifndef FKSHRC_PATH
+#define FKSHRC_PATH	"~/.fkshrc"
 #endif
 
-#ifndef MKSH_DEFAULT_TMPDIR
-#define MKSH_DEFAULT_TMPDIR	MKSH_UNIXROOT "/tmp"
+#ifndef FKSH_DEFAULT_TMPDIR
+#define FKSH_DEFAULT_TMPDIR	FKSH_UNIXROOT "/tmp"
 #endif
 
 static uint8_t isuc(const char *);
@@ -116,7 +116,7 @@ cta(int_size_no_matter_of_signedness, sizeof(int) == sizeof(unsigned int));
 cta(long_ge_int, sizeof(long) >= sizeof(int));
 cta(long_size_no_matter_of_signedness, sizeof(long) == sizeof(unsigned long));
 
-#ifndef MKSH_LEGACY_MODE
+#ifndef FKSH_LEGACY_MODE
 /* the next assertion is probably not really needed */
 cta(ari_is_4_char, sizeof(mksh_ari_t) == 4);
 /* but this is */
@@ -175,7 +175,7 @@ rndsetup(void)
 	/* introduce variation (and yes, second arg MBZ for portability) */
 	mksh_TIME(bufptr->tv);
 
-#ifdef MKSH_ALLOC_CATCH_UNDERRUNS
+#ifdef FKSH_ALLOC_CATCH_UNDERRUNS
 	mprotect(((char *)bufptr) + 4096, 4096, PROT_READ | PROT_WRITE);
 #endif
 	h = chvt_rndsetup(bufptr, sizeof(*bufptr));
@@ -235,7 +235,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	ssize_t k;
 #endif
 
-#if defined(MKSH_EBCDIC) || defined(MKSH_FAUX_EBCDIC)
+#if defined(FKSH_EBCDIC) || defined(FKSH_FAUX_EBCDIC)
 	ebcdic_init();
 #endif
 	set_ifs(TC_IFSWS);
@@ -330,16 +330,16 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 			++ccp;
 			++restricted_shell;
 		}
-#if defined(MKSH_BINSHPOSIX) || defined(MKSH_BINSHREDUCED)
+#if defined(FKSH_BINSHPOSIX) || defined(FKSH_BINSHREDUCED)
 		/* are we called as -rsh or /bin/sh or SH.EXE or so? */
 		if (ksh_eq(ccp[0], 'S', 's') &&
 		    ksh_eq(ccp[1], 'H', 'h')) {
 			/* either also turns off braceexpand */
-#ifdef MKSH_BINSHPOSIX
+#ifdef FKSH_BINSHPOSIX
 			/* enable better POSIX conformance */
 			change_flag(FPOSIX, OF_FIRSTTIME, true);
 #endif
-#ifdef MKSH_BINSHREDUCED
+#ifdef FKSH_BINSHREDUCED
 			/* enable kludge/compat mode */
 			change_flag(FSH, OF_FIRSTTIME, true);
 #endif
@@ -356,7 +356,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	/* set up variable and command dictionaries */
 	ktinit(APERM, &taliases, 0);
 	ktinit(APERM, &aliases, 0);
-#ifndef MKSH_NOPWNAM
+#ifndef FKSH_NOPWNAM
 	ktinit(APERM, &homedirs, 0);
 #endif
 
@@ -385,8 +385,8 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 		 * "keeping a regular /usr"; this is supposed
 		 * to be a sane 'basic' default PATH
 		 */
-		def_path = MKSH_UNIXROOT "/bin" MKSH_PATHSEPS
-		    MKSH_UNIXROOT "/sbin";
+		def_path = FKSH_UNIXROOT "/bin" FKSH_PATHSEPS
+		    FKSH_UNIXROOT "/sbin";
 #endif
 
 	/*
@@ -397,14 +397,14 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	/* setstr can't fail here */
 	setstr(vp, def_path, KSH_RETURN_ERROR);
 
-#ifndef MKSH_NO_CMDLINE_EDITING
+#ifndef FKSH_NO_CMDLINE_EDITING
 	/*
 	 * Set edit mode to emacs by default, may be overridden
 	 * by the environment or the user. Also, we want tab completion
 	 * on in vi by default.
 	 */
 	change_flag(FEMACS, OF_SPECIAL, true);
-#if !MKSH_S_NOVI
+#if !FKSH_S_NOVI
 	Flag(FVITABCOMPLETE) = 1;
 #endif
 #endif
@@ -415,7 +415,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	/* for security */
 	typeset(TinitIFS, 0, 0, 0, 0);
 	/* assign default shell variable values */
-	typeset("PATHSEP=" MKSH_PATHSEPS, 0, 0, 0, 0);
+	typeset("PATHSEP=" FKSH_PATHSEPS, 0, 0, 0, 0);
 	substitute(initsubs, 0);
 
 	/* Figure out the current working directory and set $PWD */
@@ -471,7 +471,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	Flag(FPRIVILEGED) = (kshuid != ksheuid || kshgid != kshegid) ? 2 : 0;
 
 	/* record if monitor is set on command line (see j_init() in jobs.c) */
-#ifndef MKSH_UNEMPLOYED
+#ifndef FKSH_UNEMPLOYED
 	Flag(FMONITOR) = 127;
 #endif
 	/* this to note if utf-8 mode is set on command line (see below) */
@@ -502,7 +502,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 		if (!*s->str)
 			s->flags |= SF_MAYEXEC;
 		s->str = s->start;
-#ifdef MKSH_MIDNIGHTBSD01ASH_COMPAT
+#ifdef FKSH_MIDNIGHTBSD01ASH_COMPAT
 		/* compatibility to MidnightBSD 0.1 /bin/sh (kludge) */
 		if (Flag(FSH) && argv[argi] && !strcmp(argv[argi], "--"))
 			++argi;
@@ -561,11 +561,11 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	/* do this after j_init() which calls tty_init_state() */
 	if (Flag(FTALKING)) {
 		if (utf_flag == 2) {
-#ifndef MKSH_ASSUME_UTF8
+#ifndef FKSH_ASSUME_UTF8
 			/* auto-detect from locale or environment */
 			utf_flag = 4;
 #else /* this may not be an #elif */
-#if MKSH_ASSUME_UTF8
+#if FKSH_ASSUME_UTF8
 			utf_flag = 1;
 #else
 			/* always disable UTF-8 (for interactive) */
@@ -573,7 +573,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 #endif
 #endif
 		}
-#ifndef MKSH_NO_CMDLINE_EDITING
+#ifndef FKSH_NO_CMDLINE_EDITING
 		x_init();
 #endif
 	}
@@ -661,7 +661,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	/* ensure these always show up setting, for FPOSIX/FSH */
 	baseline_flags[(int)FBRACEEXPAND] = 0;
 	baseline_flags[(int)FUNNYCODE] = 0;
-#if !defined(MKSH_SMALL) || defined(DEBUG)
+#if !defined(FKSH_SMALL) || defined(DEBUG)
 	/* mark as initialised */
 	baseline_flags[(int)FNFLAGS] = 1;
 #endif
@@ -676,9 +676,9 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 		warningf(false, "can't determine current directory");
 
 	if (Flag(FLOGIN))
-		include(MKSH_SYSTEM_PROFILE, 0, NULL, true);
+		include(FKSH_SYSTEM_PROFILE, 0, NULL, true);
 	if (Flag(FPRIVILEGED)) {
-		include(MKSH_SUID_PROFILE, 0, NULL, true);
+		include(FKSH_SUID_PROFILE, 0, NULL, true);
 		/* note whether -p was enabled during startup */
 		if (Flag(FPRIVILEGED) == 1)
 			/* allow set -p to setuid() later */
@@ -692,7 +692,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 		if (Flag(FLOGIN))
 			include(substitute("$HOME/.profile", 0), 0, NULL, true);
 		if (Flag(FTALKING)) {
-			cp = substitute("${ENV:-" MKSHRC_PATH "}", DOTILDE);
+			cp = substitute("${ENV:-" FKSHRC_PATH "}", DOTILDE);
 			if (cp[0] != '\0')
 				include(cp, 0, NULL, true);
 		}
@@ -1087,10 +1087,10 @@ quitenv(struct shf *shf)
 			shf_close(shf);
 		reclaim();
 #ifdef DEBUG_LEAKS
-#ifndef MKSH_NO_CMDLINE_EDITING
+#ifndef FKSH_NO_CMDLINE_EDITING
 		x_done();
 #endif
-#ifndef MKSH_NOPROSPECTOFWORK
+#ifndef FKSH_NOPROSPECTOFWORK
 		/* block at least SIGCHLD during/after afreeall */
 		sigprocmask(SIG_BLOCK, &sm_sigchld, NULL);
 #endif
@@ -1273,7 +1273,7 @@ tty_init_fd(void)
 #define VWARNINGF_INTERNAL	8
 
 static void vwarningf(unsigned int, const char *, va_list)
-    MKSH_A_FORMAT(__printf__, 2, 0);
+    FKSH_A_FORMAT(__printf__, 2, 0);
 
 static void
 vwarningf(unsigned int flags, const char *fmt, va_list ap)
@@ -1493,7 +1493,7 @@ initio(void)
 	shf_fdopen(2, SHF_WR, shl_out);
 	shf_fdopen(2, SHF_WR, shl_xtrace);
 #ifdef DF
-	if ((lfp = getenv("SDMKSH_PATH")) == NULL) {
+	if ((lfp = getenv("SDFKSH_PATH")) == NULL) {
 		if ((lfp = getenv("HOME")) == NULL || !mksh_abspath(lfp))
 			errorf("can't get home directory");
 		strpathx(lfp, lfp, "mksh-dbg.txt", 1);
@@ -1732,7 +1732,7 @@ maketemp(Area *ap, Temp_type type, struct temp **tlist)
 	const char *dir;
 	struct stat sb;
 
-	dir = tmpdir ? tmpdir : MKSH_DEFAULT_TMPDIR;
+	dir = tmpdir ? tmpdir : FKSH_DEFAULT_TMPDIR;
 	/* add "/shXXXXXX.tmp" plus NUL */
 	len = strlen(dir);
 	checkoktoadd(len, offsetof(struct temp, tffn[0]) + 14);
@@ -1973,7 +1973,7 @@ ktsort(struct table *tp)
 
 #ifdef SIGWINCH
 static void
-x_sigwinch(int sig MKSH_A_UNUSED)
+x_sigwinch(int sig FKSH_A_UNUSED)
 {
 	/* this runs inside interrupt context, with errno saved */
 
@@ -2037,7 +2037,7 @@ x_mkraw(int fd, mksh_ttyst *ocb, bool forread)
 	mksh_tcset(fd, &cb);
 }
 
-#ifdef MKSH_ENVDIR
+#ifdef FKSH_ENVDIR
 static void
 init_environ(void)
 {
@@ -2048,9 +2048,9 @@ init_environ(void)
 	DIR *dirp;
 	struct dirent *dent;
 
-	if ((dirp = opendir(MKSH_ENVDIR)) == NULL) {
+	if ((dirp = opendir(FKSH_ENVDIR)) == NULL) {
 		warningf(false, "cannot read environment from %s: %s",
-		    MKSH_ENVDIR, cstrerror(errno));
+		    FKSH_ENVDIR, cstrerror(errno));
 		return;
 	}
 	XinitN(xs, 256, ATEMP);
@@ -2058,11 +2058,11 @@ init_environ(void)
 	errno = 0;
 	if ((dent = readdir(dirp)) != NULL) {
 		if (skip_varname(dent->d_name, true)[0] == '\0') {
-			strpathx(xp, MKSH_ENVDIR, dent->d_name, 1);
+			strpathx(xp, FKSH_ENVDIR, dent->d_name, 1);
 			if (!(shf = shf_open(xp, O_RDONLY, 0, 0))) {
 				warningf(false,
 				    "cannot read environment %s from %s: %s",
-				    dent->d_name, MKSH_ENVDIR,
+				    dent->d_name, FKSH_ENVDIR,
 				    cstrerror(errno));
 				goto read_envfile;
 			}
@@ -2081,7 +2081,7 @@ init_environ(void)
 			if (n < 0) {
 				warningf(false,
 				    "cannot read environment %s from %s: %s",
-				    dent->d_name, MKSH_ENVDIR,
+				    dent->d_name, FKSH_ENVDIR,
 				    cstrerror(shf_errno(shf)));
 			} else {
 				*xp = '\0';
@@ -2094,7 +2094,7 @@ init_environ(void)
 		goto read_envfile;
 	} else if (errno)
 		warningf(false, "cannot read environment from %s: %s",
-		    MKSH_ENVDIR, cstrerror(errno));
+		    FKSH_ENVDIR, cstrerror(errno));
 	closedir(dirp);
 	Xfree(xs, xp);
 }
@@ -2118,7 +2118,7 @@ init_environ(void)
 }
 #endif
 
-#ifdef MKSH_EARLY_LOCALE_TRACKING
+#ifdef FKSH_EARLY_LOCALE_TRACKING
 void
 recheck_ctype(void)
 {

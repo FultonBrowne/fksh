@@ -70,13 +70,13 @@ static off_t histfsize;
 #endif
 
 /* HISTSIZE default: size of saved history, persistent or standard */
-#ifdef MKSH_SMALL
-#define MKSH_DEFHISTSIZE	255
+#ifdef FKSH_SMALL
+#define FKSH_DEFHISTSIZE	255
 #else
-#define MKSH_DEFHISTSIZE	2047
+#define FKSH_DEFHISTSIZE	2047
 #endif
 /* maximum considered size of persistent history file */
-#define MKSH_MAXHISTFSIZE	((off_t)1048576 * 96)
+#define FKSH_MAXHISTFSIZE	((off_t)1048576 * 96)
 
 /* hidden option */
 #define HIST_DISCARD		5
@@ -324,7 +324,7 @@ c_fc(const char **wp)
 
 		if (stat(tf->tffn, &statb) < 0)
 			n = 128;
-		else if ((off_t)statb.st_size > MKSH_MAXHISTFSIZE) {
+		else if ((off_t)statb.st_size > FKSH_MAXHISTFSIZE) {
 			bi_errorf(Tf_toolarge, Thistory,
 			    Tfile, (unsigned long)statb.st_size);
 			goto errout;
@@ -445,7 +445,7 @@ hist_get_oldest(void)
 	return (history);
 }
 
-#if !defined(MKSH_NO_CMDLINE_EDITING) && !MKSH_S_NOVI
+#if !defined(FKSH_NO_CMDLINE_EDITING) && !FKSH_S_NOVI
 /* current position in history[] */
 static char **current;
 
@@ -566,7 +566,7 @@ void
 init_histvec(void)
 {
 	if (history == (char **)NULL) {
-		histsize = MKSH_DEFHISTSIZE;
+		histsize = FKSH_DEFHISTSIZE;
 		history = alloc2(histsize, sizeof(char *), APERM);
 		histptr = history - 1;
 	}
@@ -577,7 +577,7 @@ init_histvec(void)
  * It turns out that there is a lot of ghastly hackery here
  */
 
-#if !defined(MKSH_SMALL) && HAVE_PERSISTENT_HISTORY
+#if !defined(FKSH_SMALL) && HAVE_PERSISTENT_HISTORY
 /* do not save command in history but possibly sync */
 bool
 histsync(void)
@@ -640,7 +640,7 @@ histsave(int *lnp, const char *cmd, int svmode, bool ignoredups)
 		if (ignoredups &&
 		    histptr >= history &&
 		    !strcmp(c, *histptr)
-#if !defined(MKSH_SMALL) && HAVE_PERSISTENT_HISTORY
+#if !defined(FKSH_SMALL) && HAVE_PERSISTENT_HISTORY
 		    && !histsync()
 #endif
 		    ) {
@@ -724,20 +724,20 @@ hist_persist_back(int srcfd)
 	ssize_t n, w;
 	char *buf, *cp;
 	int rv = 0;
-#define MKSH_HS_BUFSIZ 4096
+#define FKSH_HS_BUFSIZ 4096
 
 	if ((tot = lseek(srcfd, (off_t)0, SEEK_END)) < 0 ||
 	    lseek(srcfd, (off_t)0, SEEK_SET) < 0 ||
 	    lseek(histfd, (off_t)0, SEEK_SET) < 0)
 		return (1);
 
-	if ((buf = malloc_osfunc(MKSH_HS_BUFSIZ)) == NULL)
+	if ((buf = malloc_osfunc(FKSH_HS_BUFSIZ)) == NULL)
 		return (1);
 
 	mis = tot;
 	while (mis > 0) {
 		if ((n = blocking_read(srcfd, (cp = buf),
-		    MKSH_HS_BUFSIZ)) == -1) {
+		    FKSH_HS_BUFSIZ)) == -1) {
 			if (errno == EINTR) {
 				intrcheck();
 				continue;
@@ -795,7 +795,7 @@ hist_persist_init(void)
 	mksh_lockfd(histfd);
 
 	histfsize = lseek(histfd, (off_t)0, SEEK_END);
-	if (histfsize > MKSH_MAXHISTFSIZE) {
+	if (histfsize > FKSH_MAXHISTFSIZE) {
 		/* we ignore too large files but still append to them */
 		goto hist_init_tail;
 	} else if (histfsize > 2) {
@@ -974,12 +974,12 @@ writehistfile(int lno, const char *cmd)
 		;
 	} else if (
 		/* ignore changes when the file is too large */
-		sizenow <= MKSH_MAXHISTFSIZE
+		sizenow <= FKSH_MAXHISTFSIZE
 	    &&
 		/* the size has changed, we need to do read updates */
 		sizenow > histfsize
 	    ) {
-		/* both sizenow and histfsize are <= MKSH_MAXHISTFSIZE */
+		/* both sizenow and histfsize are <= FKSH_MAXHISTFSIZE */
 		bytes = (size_t)(sizenow - histfsize);
 		base = (void *)mmap(NULL, (size_t)sizenow, PROT_READ,
 		    MAP_FILE | MAP_PRIVATE, histfd, (off_t)0);
@@ -1093,7 +1093,7 @@ inittraps(void)
 			/* check for reserved names */
 			if (!strcmp(sigtraps[i].name, "EXIT") ||
 			    !strcmp(sigtraps[i].name, "ERR")) {
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 				internal_warningf(Tinvname, sigtraps[i].name,
 				    "signal");
 #endif
@@ -1151,7 +1151,7 @@ alarm_init(void)
 
 /* ARGSUSED */
 static void
-alarm_catcher(int sig MKSH_A_UNUSED)
+alarm_catcher(int sig FKSH_A_UNUSED)
 {
 	/* this runs inside interrupt context, with errno saved */
 

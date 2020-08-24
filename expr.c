@@ -91,7 +91,7 @@ enum error_type {
 };
 
 static void evalerr(Expr_state *, enum error_type, const char *)
-    MKSH_A_NORETURN;
+    FKSH_A_NORETURN;
 static struct tbl *evalexpr(Expr_state *, unsigned int);
 static void exprtoken(Expr_state *);
 static struct tbl *do_ppmm(Expr_state *, enum token, struct tbl *, bool);
@@ -380,7 +380,7 @@ evalexpr(Expr_state *es, unsigned int prec)
 			t1 = vl->val.i < 0 ? -vl->val.u : vl->val.u;
 			t2 = vr->val.i < 0 ? -vr->val.u : vr->val.u;
 			break;
-#ifndef MKSH_LEGACY_MODE
+#ifndef FKSH_LEGACY_MODE
 		case O_LSHIFT:
 		case O_LSHIFTASN:
 		case O_RSHIFT:
@@ -433,7 +433,7 @@ evalexpr(Expr_state *es, unsigned int prec)
 			 * a / b = abs(a) / abs(b) * sgn((u)a^(u)b)
 			 */
 			t3 = t1 / t2;
-#ifndef MKSH_LEGACY_MODE
+#ifndef FKSH_LEGACY_MODE
 			res = ((vl->val.u ^ vr->val.u) & 0x80000000) ? -t3 : t3;
 #else
 			res = ((t1 == vl->val.u ? 0 : 1) ^
@@ -458,7 +458,7 @@ evalexpr(Expr_state *es, unsigned int prec)
 		case O_MINUSASN:
 			res = t1 - t2;
 			break;
-#ifndef MKSH_LEGACY_MODE
+#ifndef FKSH_LEGACY_MODE
 		case O_ROL:
 		case O_ROLASN:
 			res = (t1 << t2) | (t1 >> (32 - t2));
@@ -600,7 +600,7 @@ exprtoken(Expr_state *es)
 			cp += utf_ptradj(cp);
 		strndupx(tvar, es->tokp, cp - es->tokp, ATEMP);
 		goto process_tvar;
-#ifndef MKSH_SMALL
+#ifndef FKSH_SMALL
 	} else if (c == '\'') {
 		if (*++cp == '\0') {
 			es->tok = END;
@@ -883,7 +883,7 @@ struct mb_ucsrange {
 };
 
 static int mb_ucsbsearch(const struct mb_ucsrange arr[], size_t elems,
-    unsigned int val) MKSH_A_PURE;
+    unsigned int val) FKSH_A_PURE;
 
 /*
  * Generated from the UCD 13.0.0 - see /usr/share/doc/legal/LICENCE-BSD - by

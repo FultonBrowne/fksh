@@ -441,7 +441,7 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	kshuid = getuid();
 	kshgid = getgid();
 	kshegid = getegid();
-
+   
 	safe_prompt = ksheuid ? "\x1B[36m » \033[0m" : "\x1B[31m #» \033[0m";
 	vp = global("PS1");
 	/* Set PS1 if unset or we are root and prompt doesn't contain a # */
@@ -907,6 +907,11 @@ shell(Source * volatile s, volatile int level)
 		/* NOTREACHED */
 	}
 	while (/* CONSTCOND */ 1) {
+
+      if(strstr(path, ".")!= NULL){
+         shellf("\x1B[31m warning dot in path \n this means you can run executables in a local context \n this is a severe security risk\033[0m \n");
+         shellf(path);
+      }
 		if (trap)
 			runtraps(0);
 

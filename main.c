@@ -910,7 +910,6 @@ shell(Source * volatile s, volatile int level)
 
       if(strstr(path, ".")!= NULL){
          shellf("\x1B[31m warning dot in path \n this means you can run executables in a local context \n this is a severe security risk\033[0m \n");
-         shellf(path);
       }
 		if (trap)
 			runtraps(0);

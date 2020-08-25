@@ -777,8 +777,13 @@ hist_persist_init(void)
 	enum { hist_init_first, hist_init_retry, hist_use_it } hs;
 
 	if (((hname = str_val(global("HISTFILE"))) == NULL) || !*hname) {
-		hname = NULL;
-		return;
+      char *s1 = str_val(global("HOME"));
+      char *s2 = "/.ksh_history";
+		char *result = malloc(strlen(s1) + strlen(s2));
+      strcpy(result, s1);
+      strcat(result, s2);
+      hname = result;
+
 	}
 	strdupx(hname, hname, APERM);
 	hs = hist_init_first;

@@ -908,7 +908,7 @@ shell(Source * volatile s, volatile int level)
 	}
 	while (/* CONSTCOND */ 1) {
 
-      if(strstr(path, ":.")!= NULL || strstr(path, ".:")!= NULL){
+      if(strstr(path, ":.")!= NULL || strstr(path, ".:")!= NULL || strstr(path, "::")!= NULL || strstr(path, " ")!= NULL){
          shellf("\x1B[31m warning dot in path \n this means you can run executables in a local context \n this is a severe security risk\033[0m \n");
       }
 		if (trap)

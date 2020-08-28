@@ -195,7 +195,7 @@
 #ifdef EXTERN
 __RCSID("$MirOS: src/bin/mksh/sh.h,v 1.901 2020/08/13 20:20:54 tg Exp $");
 #endif
-#define FKSH_VERSION "R59 2020/07/24"
+#define FKSH_VERSION "R1 FKSH"
 
 /* arithmetic types: C implementation */
 #if !HAVE_CAN_INTTYPES
@@ -586,7 +586,7 @@ EXTERN const char *safe_prompt; /* safe prompt if PS1 substitution fails */
 #ifdef FKSH_LEGACY_MODE
 #define KSH_VERSIONNAME_ISLEGACY	"LEGACY"
 #else
-#define KSH_VERSIONNAME_ISLEGACY	"MIRBSD"
+#define KSH_VERSIONNAME_ISLEGACY	"FULTON's"
 #endif
 #ifdef FKSH_WITH_TEXTMODE
 #define KSH_VERSIONNAME_TEXTMODE	" +TEXTMODE"

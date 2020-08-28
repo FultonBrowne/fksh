@@ -3,6 +3,5 @@ Fulton's mksh -- the ultimate shell
 
 this is a modded version of mir bsd's mksh 
 
-to build on any UNIX or UNIX like system run `make build`. to build and run execute `make run`
+to build on any UNIX or UNIX like system run `make build`. to build and run execute `make run`. To install run `make install` as root
 
-note at this time `make install` is not ready due to the fact that fksh is not very stable ath this time

@@ -3,5 +3,8 @@ build:
 	./Build.sh
 run: build
 	./fksh
-install:
-	@echo not ready yet :]
+install: build
+	@rm /bin/fksh &
+	@install -c -s -o root -g bin -m 555 fksh /bin/fksh
+	@grep -qxF '/bin/fksh' /etc/shells || echo '/bin/fksh' >> /etc/shells
+	@echo installed

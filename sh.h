@@ -666,7 +666,7 @@ char *ucstrstr(char *, const char *);
 #endif
 #endif
 
-#if (!defined(FKSH_BUILDMAKEFILE4BSD) && !defined(FKSH_BUILDSH)) || (FKSH_BUILD_R != 593)
+#if (!defined(FKSH_BUILDMAKEFILE4BSD) && !defined(FKSH_BUILDSH))
 #error Must run Build.sh to compile this.
 extern void thiswillneverbedefinedIhope(void);
 int

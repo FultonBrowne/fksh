@@ -1,5 +1,5 @@
 #!/bin/sh
-srcversion='$MirOS: src/bin/mksh/Build.sh,v 1.762 2020/08/14 03:32:28 tg Exp $'
+srcversion='fksh 0.1'
 #-
 # Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
 #		2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019,
@@ -2491,7 +2491,6 @@ addsrcs USE_PRINTF_BUILTIN printf.c
 addsrcs '!' FKSH_UNLIMITED ulimit.c
 
 test 1 = "$HAVE_CAN_VERB" && CFLAGS="$CFLAGS -verbose"
-add_cppflags -DFKSH_BUILD_R=593
 
 $e $bi$me: Finished configuration testing, now producing output.$ao
 

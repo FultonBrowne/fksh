@@ -384,6 +384,9 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 		 * for HURD, because e.g. Debian GNU/HURD is
 		 * "keeping a regular /usr"; this is supposed
 		 * to be a sane 'basic' default PATH
+       * 
+       *
+       * LOL no. nobody uses hurd if you do get a life-- Fulton
 		 */
 		def_path = FKSH_UNIXROOT "/bin" FKSH_PATHSEPS
 		    FKSH_UNIXROOT "/sbin";
@@ -953,7 +956,9 @@ shell(Source * volatile s, volatile int level)
 			t->u.evalflags |= DOTCOMEXEC;
 		if (!Flag(FNOEXEC) || (s->flags & SF_TTY))
 			exstat = execute(t, 0, NULL) & 0xFF;
-
+         if(exstat!=0&&*str_val(global("NO_RETURN_CODE"))!=*"true"){
+            shellf("\x1B[31m :[ %i \033[0m", exstat);
+         }
 		if (t->type != TEOF && interactive && really_exit)
 			really_exit = false;
 

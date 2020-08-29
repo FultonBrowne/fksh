@@ -1,4 +1,13 @@
 #!/bin/sh
+echo "███████╗██╗  ██╗███████╗██╗  ██╗";
+echo "██╔════╝██║ ██╔╝██╔════╝██║  ██║";
+echo "█████╗  █████╔╝ ███████╗███████║";
+echo "██╔══╝  ██╔═██╗ ╚════██║██╔══██║";
+echo "██║     ██║  ██╗███████║██║  ██║";
+echo "╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝";
+echo "                                ";
+
+
 srcversion='fksh 0.1'
 #-
 # Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
@@ -2510,105 +2519,7 @@ case $curdir in
 *\ *)	mkshshebang="#!./$mkshexe" ;;
 *)	mkshshebang="#!$curdir/$mkshexe" ;;
 esac
-cat >test.sh <<-EOF
-	$mkshshebang
-	LC_ALL=C PATH='$PATH'; export LC_ALL PATH
-	case \$KSH_VERSION in
-	*MIRBSD*|*LEGACY*) ;;
-	*) exit 1 ;;
-	esac
-	set -A check_categories -- $check_categories
-	pflag='$curdir/$mkshexe'
-	sflag='$srcdir/check.t'
-	usee=0 useU=0 Pflag=0 Sflag=0 uset=0 vflag=1 xflag=0
-	while getopts "C:e:fPp:QSs:t:U:v" ch; do case \$ch {
-	(C)	check_categories[\${#check_categories[*]}]=\$OPTARG ;;
-	(e)	usee=1; eflag=\$OPTARG ;;
-	(f)	check_categories[\${#check_categories[*]}]=fastbox ;;
-	(P)	Pflag=1 ;;
-	(+P)	Pflag=0 ;;
-	(p)	pflag=\$OPTARG ;;
-	(Q)	vflag=0 ;;
-	(+Q)	vflag=1 ;;
-	(S)	Sflag=1 ;;
-	(+S)	Sflag=0 ;;
-	(s)	sflag=\$OPTARG ;;
-	(t)	uset=1; tflag=\$OPTARG ;;
-	(U)	useU=1; Uflag=\$OPTARG ;;
-	(v)	vflag=1 ;;
-	(+v)	vflag=0 ;;
-	(*)	xflag=1 ;;
-	}
-	done
-	shift \$((OPTIND - 1))
-	set -A args -- '$srcdir/check.pl' -p "\$pflag"
-	if $ebcdic; then
-		args[\${#args[*]}]=-E
-	fi
-	x=
-	for y in "\${check_categories[@]}"; do
-		x=\$x,\$y
-	done
-	if [[ -n \$x ]]; then
-		args[\${#args[*]}]=-C
-		args[\${#args[*]}]=\${x#,}
-	fi
-	if (( usee )); then
-		args[\${#args[*]}]=-e
-		args[\${#args[*]}]=\$eflag
-	fi
-	(( Pflag )) && args[\${#args[*]}]=-P
-	if (( uset )); then
-		args[\${#args[*]}]=-t
-		args[\${#args[*]}]=\$tflag
-	fi
-	if (( useU )); then
-		args[\${#args[*]}]=-U
-		args[\${#args[*]}]=\$Uflag
-	fi
-	(( vflag )) && args[\${#args[*]}]=-v
-	(( xflag )) && args[\${#args[*]}]=-x	# force usage by synerr
-	if [[ -n \$TMPDIR && -d \$TMPDIR/. ]]; then
-		args[\${#args[*]}]=-T
-		args[\${#args[*]}]=\$TMPDIR
-	fi
-	print Testing mksh for conformance:
-	grep -F -e 'KSH R' -e Mir''OS: "\$sflag" | sed '/KSH/s/^./&           /'
-	print "This shell is actually:\\n\\t\$KSH_VERSION"
-	print 'test.sh built for mksh $dstversion'
-	cstr='\$os = defined \$^O ? \$^O : "unknown";'
-	cstr="\$cstr"'print \$os . ", Perl version " . \$];'
-	for perli in \$PERL perl5 perl no; do
-		if [[ \$perli = no ]]; then
-			print Cannot find a working Perl interpreter, aborting.
-			exit 1
-		fi
-		print "Trying Perl interpreter '\$perli'..."
-		perlos=\$(\$perli -e "\$cstr")
-		rv=\$?
-		print "Errorlevel \$rv, running on '\$perlos'"
-		if (( rv )); then
-			print "=> not using"
-			continue
-		fi
-		if [[ -n \$perlos ]]; then
-			print "=> using it"
-			break
-		fi
-	done
-	(( Sflag )) || echo + \$perli "\${args[@]}" -s "\$sflag" "\$@"
-	(( Sflag )) || exec \$perli "\${args[@]}" -s "\$sflag" "\$@"$tsts
-	# use of the -S option for check.t split into multiple chunks
-	rv=0
-	for s in "\$sflag".*; do
-		echo + \$perli "\${args[@]}" -s "\$s" "\$@"
-		\$perli "\${args[@]}" -s "\$s" "\$@"$tsts
-		rc=\$?
-		(( rv = rv ? rv : rc ))
-	done
-	exit \$rv
 EOF
-chmod 755 test.sh
 case $cm in
 dragonegg)
 	emitbc="-S -flto"
@@ -2676,7 +2587,7 @@ SRCS_FP=	$files
 OBJS_BP=	$objs
 INDSRCS=	$extras
 NONSRCS_INST=	dot.mkshrc \$(MAN)
-NONSRCS_NOINST=	Build.sh Makefile Rebuild.sh check.pl check.t test.sh
+NONSRCS_NOINST=	Build.sh Makefile Rebuild.sh check.pl check.t
 CC=		$CC
 CPPFLAGS=	$CPPFLAGS
 CFLAGS=		$CFLAGS

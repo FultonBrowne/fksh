@@ -35,3 +35,10 @@ else
    echo ert5dcvfgyhbjsudnkmxvlf
    return 1
 fi
+
+if [[ $(($testInt - 1)) == 101 ]]; then
+   echo big mafs 2
+else
+   echo **big sad**
+   return 1
+fi

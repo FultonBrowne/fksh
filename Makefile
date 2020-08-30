@@ -9,4 +9,5 @@ install: build
 	@grep -qxF '/bin/fksh' /etc/shells || echo '/bin/fksh' >> /etc/shells
 	@echo installed
 test: build
+	chmod +x ./test.sh
 	@./test.sh

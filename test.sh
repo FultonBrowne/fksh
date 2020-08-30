@@ -29,4 +29,9 @@ else
    return 1
 fi
 
-
+if [[ $(($testInt + 1)) == 103 ]]; then
+   echo big mafs 1
+else
+   echo ert5dcvfgyhbjsudnkmxvlf
+   return 1
+fi

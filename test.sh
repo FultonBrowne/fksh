@@ -42,3 +42,9 @@ else
    echo **big sad**
    return 1
 fi
+if [[ $(($testInt x 2)) == 204 ]]; then
+   echo big mafs 3
+else
+   echo **vchjncvchjbhcvhjbcvhjbcvjbcvhjb**
+   return 1
+fi

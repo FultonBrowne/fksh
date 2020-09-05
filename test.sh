@@ -44,3 +44,9 @@ else
 fi
 sleep 10
 echo sleep test complete
+if [[ $(($testInt x 2)) == 204 ]]; then
+   echo big mafs 3
+else
+   echo **vchjncvchjbhcvhjbcvhjbcvjbcvhjb**
+   return 1
+fi

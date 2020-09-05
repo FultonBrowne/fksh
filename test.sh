@@ -42,3 +42,5 @@ else
    echo **big sad**
    return 1
 fi
+sleep 10
+echo sleep test complete
